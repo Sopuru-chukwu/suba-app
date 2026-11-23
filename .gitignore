@@ -1,0 +1,4 @@
+.DS_Store
+*.log
+.mysql/
+.claude/worktrees/

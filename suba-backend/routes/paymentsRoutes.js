@@ -6,29 +6,30 @@ const router = express.Router();
 
 // Calculate next billing date from a given date
 function calculateNextBillingDate(billingCycle, currentDate = new Date()) {
+  // Work purely in UTC so the server's timezone can't shift the date by a day.
   const date = new Date(currentDate);
-  date.setHours(0, 0, 0, 0);
+  date.setUTCHours(0, 0, 0, 0);
 
   const cycle = (billingCycle || 'monthly').toString().toLowerCase();
 
   switch (cycle) {
     case 'daily':
-      date.setDate(date.getDate() + 1);
+      date.setUTCDate(date.getUTCDate() + 1);
       break;
     case 'weekly':
-      date.setDate(date.getDate() + 7);
+      date.setUTCDate(date.getUTCDate() + 7);
       break;
     case 'monthly':
-      date.setMonth(date.getMonth() + 1);
+      date.setUTCMonth(date.getUTCMonth() + 1);
       break;
     case 'yearly':
-      date.setFullYear(date.getFullYear() + 1);
+      date.setUTCFullYear(date.getUTCFullYear() + 1);
       break;
     case 'quarterly':
-      date.setMonth(date.getMonth() + 3);
+      date.setUTCMonth(date.getUTCMonth() + 3);
       break;
     default:
-      date.setMonth(date.getMonth() + 1);
+      date.setUTCMonth(date.getUTCMonth() + 1);
   }
 
   return date.toISOString().split('T')[0];
@@ -197,8 +198,8 @@ router.put('/subscriptions/:id/skip', async (req, res) => {
 router.get('/subscriptions/:id/payments', async (req, res) => {
   try {
     const { id } = req.params;
-    const limit = parseInt(req.query.limit || '20', 10);
-    const offset = parseInt(req.query.offset || '0', 10);
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 20, 1), 100);
+    const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
 
     const [subscription] = await dbPromise.execute(
       'SELECT id, user_id FROM subscriptions WHERE id = ?',
@@ -212,7 +213,8 @@ router.get('/subscriptions/:id/payments', async (req, res) => {
       });
     }
 
-    const [payments] = await dbPromise.execute(
+    // query() (not execute()): MySQL 8 rejects bound LIMIT/OFFSET in prepared statements.
+    const [payments] = await dbPromise.query(
       `SELECT p.*, s.name AS subscription_name, s.logo_url
        FROM payments p
        LEFT JOIN subscriptions s ON p.subscription_id = s.id

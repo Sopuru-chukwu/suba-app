@@ -1,7 +1,7 @@
 // suba-backend/index.js
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
+import 'dotenv/config'; // load .env before any module reads process.env
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -17,7 +17,6 @@ import budgetRoutes from './routes/budgetRoutes.js';
 import budgetReportsRoutes from './routes/budgetReportsRoutes.js';
 import notificationsRoutes from './routes/notificationsRoutes.js';
 
-dotenv.config();
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -44,7 +43,7 @@ app.get('/api/payments/test', (req, res) => res.json({ message: 'Payments endpoi
 
 app.get('/', (req, res) => res.send('✅ API is running...'));
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log('📦 Routes loaded:');

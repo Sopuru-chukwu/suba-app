@@ -24,8 +24,7 @@
       "permissions": [
         "android.permission.RECORD_AUDIO"
       ],
-      "package": "com.bfg.subafrontend",
-      "usesCleartextTraffic": true
+      "package": "com.bfg.subafrontend"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -37,6 +36,15 @@
         {
           "photosPermission": "Allow $(PRODUCT_NAME) to access your photos to update your profile picture.",
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera to take a profile photo."
+        }
+      ],
+      "expo-font",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
         }
       ]
     ],

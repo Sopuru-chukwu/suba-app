@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { AuthProvider, AuthContext } from './src/contexts/AuthContext';
 import AuthNavigator from './src/navigation/AuthNavigator';
 import MainNavigator from './src/navigation/MainNavigator';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, Platform, View } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { NotificationService } from './src/services/notificationService';
 
@@ -14,6 +14,9 @@ function AppNavigator() {
   const responseListener = useRef();
 
   useEffect(() => {
+    // Local notifications are native-only; expo-notifications can't schedule them on web.
+    if (Platform.OS === 'web') return undefined;
+
     // Request notification permissions when app starts
     NotificationService.requestPermissions();
     
@@ -40,12 +43,8 @@ function AppNavigator() {
 
     return () => {
       // Clean up listeners
-      if (notificationListener.current) {
-        Notifications.removeNotificationSubscription(notificationListener.current);
-      }
-      if (responseListener.current) {
-        Notifications.removeNotificationSubscription(responseListener.current);
-      }
+      notificationListener.current?.remove();
+      responseListener.current?.remove();
     };
   }, []);
 

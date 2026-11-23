@@ -9,12 +9,15 @@ export const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
+  port: Number(process.env.DB_PORT) || 3306,
   database: process.env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  acquireTimeout: 60000, // 60 seconds
-  timeout: 60000, // 60 seconds
+  connectTimeout: 60000, // 60 seconds
+  // Return DATE columns as 'YYYY-MM-DD' strings instead of local-midnight Date objects,
+  // which serialize to the previous day in UTC for timezones ahead of UTC.
+  dateStrings: ['DATE'],
 });
 
 // Create promise-based version
